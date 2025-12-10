@@ -39,16 +39,25 @@ export class Gameboard {
 
         this.ships.push(ship);
 
-        let locations = this.getLocation(start,end,length)
+        let locations = this.getLocation(start,end,length);
         ship.location.push(...locations);
+       
+        let isPossible = true;
 
-       locations.forEach((location) => {
+        locations.forEach((location) => {
             let [x,y] = location;
             
+            if(this.board[x][y] !== ''){
+                isPossible = false;
+                return;
+            }
             this.board[x][y] = this.ships.length-1;
 
-       })
-        
+        })
+        if(!isPossible){
+            this.ships.pop();
+        }
+        return isPossible;
     }
 
     getLength(start,end){
@@ -148,4 +157,15 @@ export class Gameboard {
 
         return isAllSunk;
     }
+}
+
+
+export class Player {
+    constructor(name,type){
+        this.name = name;
+        this.type = type;
+        this.gameboard = new Gameboard();
+    }
+
+
 }
