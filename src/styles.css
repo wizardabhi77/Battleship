@@ -1,0 +1,28 @@
+body {
+    background-color: aqua;
+    display: flex;
+    flex-direction: column;
+    gap: 100px;
+    align-items: center;
+}
+
+.gamearea {
+    display: flex;
+    gap: 50px;
+}
+
+
+.gameboard {
+    display: grid;
+    
+    border: 5px groove black;
+    grid-template-columns: repeat(10, 1fr);
+    height: 500px;
+    width: 500px;
+    
+}
+
+.tile {
+    border: 2px solid blue;
+    
+}

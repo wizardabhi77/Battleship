@@ -1,6 +1,9 @@
 import {Gameboard} from './battleship';
-
+import {createPlayers} from './dom';
+import './styles.css';
 const gameBoard = new Gameboard();
+
+
 
 gameBoard.place([1,2],[1,5]);
 gameBoard.place([1,3],[2,3]);

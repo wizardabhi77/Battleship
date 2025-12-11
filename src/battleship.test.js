@@ -1,5 +1,9 @@
 import {Ship, Gameboard, Player} from './battleship';
 
+
+
+
+
 const dummyShip = new Ship(4);
 const dummyBoard = new Gameboard();
 const dummyPlayer = new Player('viplav','real');
@@ -88,5 +92,10 @@ test('player has type -- real',()=> {
 test('player has type -- computer',()=> {
     expect(computerPlayer.type).toBe('com');
 })
+
+//DOM tests
+
+
+
 
 
