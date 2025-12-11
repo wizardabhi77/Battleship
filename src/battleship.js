@@ -116,6 +116,9 @@ export class Gameboard {
 
     recieveAttack (hitLocation) {
         
+        if(this.board[hitLocation[0]][hitLocation[1]] === 'X'){
+            return null;
+        }
         let ship = this.isHit(hitLocation);
         
         if(ship){
@@ -124,7 +127,7 @@ export class Gameboard {
         }
         else {
             this.missedShots.push(hitLocation.toString());
-            this.board[hitLocation[0]][hitLocation[1]] = 'X';
+            this.board[hitLocation[0]][hitLocation[1]] = 'O';
         }
     }
 

@@ -1,26 +1,20 @@
 import {Ship,Gameboard,Player} from './battleship';
 
+let turn = 0;
+let playerOne  = '';
+let playerTwo = ''; 
 
 const selectType = document.querySelector('select');
 
-
+//event listeners
 const startButton = document.querySelector('button.start');
 startButton.addEventListener('click',handleStart);
 
+const gameArea = document.querySelector('.gamearea');
 const gameBoard1 = document.querySelector('.player1>.gameboard');
 const gameBoard2 = document.querySelector('.player2>.gameboard');
 
-export function createPlayers (player1,player2,type) {
-
-    let player1name = player1.value;
-    let player2name = player2.value;
-    let playerType = type.value;
-
-    let player1Obj = new Player(player1name,'real');
-    let player2Obj = new Player(player2name, playerType);
-
-    return [player1Obj, player2Obj];
-}
+//start of the game
 
 function handleStart() {
     
@@ -28,6 +22,8 @@ function handleStart() {
     const player2 = document.querySelector('#player2name');
 
     let players =createPlayers(player1,player2,selectType);
+    playerOne = players[0];
+    playerTwo = players[1];
 
     placeShips(players[0],players[1]);
 
@@ -48,28 +44,16 @@ function handleStart() {
     menu.appendChild(player2name);
 }
 
-function renderGameboard (gameboards){
-    
-    let [gameboard1Obj,gameboard2Obj] = gameboards;
+export function createPlayers (player1,player2,type) {
 
-    for(let i=0; i<10; i++){
-        for(let j=0; j<10; j++){
-            let tile = document.createElement('div');
-            let tileClone = document.createElement('div');
+    let player1name = player1.value;
+    let player2name = player2.value;
+    let playerType = type.value;
 
-            tile.classList = 'tile';
-            tileClone.classList = 'tile';
+    let player1Obj = new Player(player1name,'real');
+    let player2Obj = new Player(player2name, playerType);
 
-            tile.id = `${i},${j}`;
-            tileClone.id = `${i},${j}`;
-
-            tile.innerHTML = `${gameboard1Obj.board[i][j]}`;
-            tileClone.innerHTML = `${gameboard1Obj.board[i][j]}`;
-
-            gameBoard1.appendChild(tile);
-            gameBoard2.appendChild(tileClone);
-        }
-    }
+    return [player1Obj, player2Obj];
 }
 
 function placeShips (player1, player2){
@@ -84,4 +68,135 @@ function placeShips (player1, player2){
     player2.gameboard.place([8,1],[9,1]);
     player2.gameboard.place([7,2],[7,3]);
 
+}
+
+//render Gameboard each time
+function renderGameboard (gameboards){
+
+    //clear Gameboards
+    gameBoard1.innerHTML= '';
+    gameBoard2.innerHTML = '';
+    
+    let [gameboard1Obj,gameboard2Obj] = gameboards;
+
+    for(let i=0; i<10; i++){
+        for(let j=0; j<10; j++){
+            let tile = document.createElement('div');
+            let tileClone = document.createElement('div');
+
+            tile.addEventListener('click',handleDamage);
+            tileClone.addEventListener('click',handleDamage);
+
+            tile.classList = 'tile';
+            tileClone.classList = 'tile';
+
+            tile.id = `${i},${j}`;
+            tileClone.id = `${i},${j}`;
+
+            let tilevalue = gameboard1Obj.board[i][j];
+            let tileClonevalue = gameboard2Obj.board[i][j];
+
+            setTileColor(tile,tilevalue);
+            setTileColor(tileClone,tileClonevalue);
+            
+            tile.innerHTML = `${tilevalue}`;
+            tileClone.innerHTML = `${tileClonevalue}`;
+
+            gameBoard1.appendChild(tile);
+            gameBoard2.appendChild(tileClone);
+        }
+    }
+}
+
+function setTileColor(tile,char){
+
+    switch (char) {
+        case 0 : tile.style.backgroundColor = 'blue';
+                    break;
+        case 1 : tile.style.backgroundColor = 'yellow';
+                    break;
+        case 2 : tile.style.backgroundColor = 'green';
+                    break;
+        case 3 : tile.style.backgroundColor = 'violet';
+                    break;
+        case 4 : tile.style.backgroundColor = 'pink';
+                    break;
+        case 'X' : tile.style.backgroundColor = 'red';
+                    break;
+        case 'O' : tile.style.backgroundColor = 'black';
+                    break;
+        default: tile.style.backgroundColor = 'white';
+            
+    }
+}
+
+//damage tile turn by turn
+
+function handleDamage(e){
+
+    let currPlayer = playerOne;
+    turn++;
+    if(turn%2 === 0){
+        currPlayer = playerTwo;
+    }
+    
+    //handle wrong turn click
+    if((e.target.parentElement.parentElement.className === 'player1' && currPlayer === playerOne) ||
+    (e.target.parentElement.parentElement.className === 'player2' && currPlayer === playerTwo)){
+        turn--;
+        return null;
+    }
+
+    let pos = e.target.id;
+
+    dealDamage([Number(pos[0]),Number(pos[2])],currPlayer);
+    
+    //ComputerPlayer Turn
+    if(playerTwo.type === 'com'){
+        dealDamage(computerAI(),playerTwo);
+        turn++;
+    }
+
+    //endGameTrigger
+    if(playerOne.gameboard.allSunk() || playerTwo.gameboard.allSunk()){
+        endGame();
+    }
+}
+
+function dealDamage(pos,currPlayer){
+    
+    let x = pos[0];
+    let y = pos[1];
+
+    if(currPlayer === playerOne){
+        currPlayer = playerTwo;
+    }
+    else {
+        currPlayer = playerOne;
+    }
+
+    currPlayer.gameboard.recieveAttack([x,y]);
+    
+    renderGameboard([playerOne.gameboard,playerTwo.gameboard]);
+}
+
+function computerAI(){
+
+    let x=0;
+    let y=0;
+    let legalMove = false;
+
+    while(!legalMove){
+        x = Math.floor(Math.random()*10);
+        y = Math.floor(Math.random()*10);
+        if(playerOne.gameboard.board[x][y] !== 'X'){
+            legalMove = true;
+        }
+    }
+
+    return [x,y];
+}
+
+function endGame(){
+    gameArea.innerHTML = `<h1>GAME OVER!</h1>`;
 }
