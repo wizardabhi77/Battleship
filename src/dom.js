@@ -58,15 +58,15 @@ export function createPlayers (player1,player2,type) {
 
 function placeShips (player1, player2){
 
-    player1.gameboard.place([1,2],[1,5]);
-    player1.gameboard.place([3,2],[3,4]);
-    player1.gameboard.place([8,1],[9,1]);
-    player1.gameboard.place([7,2],[7,3]);
+    computerPlace(player1)
 
-    player2.gameboard.place([1,2],[1,5]);
-    player2.gameboard.place([3,2],[3,4]);
-    player2.gameboard.place([8,1],[9,1]);
-    player2.gameboard.place([7,2],[7,3]);
+    if(player2.type === 'com'){
+        computerPlace(player2);
+    }
+    else {
+       computerPlace(player2);
+    }
+    
 
 }
 
@@ -92,13 +92,30 @@ function renderGameboard (gameboards){
 
             tile.id = `${i},${j}`;
             tileClone.id = `${i},${j}`;
+            let tilevalue = '';
+            let tileClonevalue = '';
 
-            let tilevalue = gameboard1Obj.board[i][j];
-            let tileClonevalue = gameboard2Obj.board[i][j];
+            //hiding gameboard based on playerTwo type
+            if(playerTwo.type === 'com'){
+                tilevalue = gameboard1Obj.board[i][j];
+                tileClonevalue = gameboard2Obj.board[i][j] === 'X' || gameboard2Obj.board[i][j] === 'O'? gameboard2Obj.board[i][j]: '';
+            }
+            else{
+                if(turn%2 === 0){
+                    tilevalue = gameboard1Obj.board[i][j];
+                    tileClonevalue = gameboard2Obj.board[i][j] === 'X' || gameboard2Obj.board[i][j] === 'O'? gameboard2Obj.board[i][j]: '';
+                }
+                else {
+                    tilevalue = gameboard1Obj.board[i][j] === 'X' || gameboard1Obj.board[i][j] === 'O'? gameboard1Obj.board[i][j]: '';
+                    tileClonevalue = gameboard2Obj.board[i][j];
+                }
+            }
+            
 
+            
             setTileColor(tile,tilevalue);
             setTileColor(tileClone,tileClonevalue);
-            
+
             tile.innerHTML = `${tilevalue}`;
             tileClone.innerHTML = `${tileClonevalue}`;
 
@@ -153,7 +170,7 @@ function handleDamage(e){
     
     //ComputerPlayer Turn
     if(playerTwo.type === 'com'){
-        dealDamage(computerAI(),playerTwo);
+        dealDamage(computerHit(),playerTwo);
         turn++;
     }
 
@@ -180,7 +197,8 @@ function dealDamage(pos,currPlayer){
     renderGameboard([playerOne.gameboard,playerTwo.gameboard]);
 }
 
-function computerAI(){
+//Computer AI
+function computerHit(){
 
     let x=0;
     let y=0;
@@ -197,6 +215,43 @@ function computerAI(){
     return [x,y];
 }
 
+function computerPlace(player){
+    
+    let shiplengths = [4,3,2,2];
+    
+    shiplengths.forEach((ship) => {
+        let possible = false;
+
+        while(!possible){
+            let x = Math.floor(Math.random()*10);
+            let y = Math.floor(Math.random()*10);
+            let start = [x,y];
+            let end = [];
+            let hOrV = Math.floor(Math.random()*2);
+
+            if(hOrV === 0 && x+(ship-1) < 10){
+                end = [x+(ship-1),y];
+            }
+            else if(hOrV === 1 && y+(ship-1) <10){
+                end = [x,y+(ship-1)];
+            }
+            else {
+                continue;
+            }
+
+            possible = player.gameboard.place(start,end);
+        }
+    })
+}
+
 function endGame(){
-    gameArea.innerHTML = `<h1>GAME OVER!</h1>`;
+
+    let winner = ''
+    if(playerOne.gameboard.allSunk()){
+        winner = playerTwo.name;
+    }
+    else{
+        winner = playerOne.name;
+    }
+    gameArea.innerHTML = `<h1>GAME OVER!</h1><br><h2>${winner} has Won.</h2>`;
 }

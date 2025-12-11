@@ -44,15 +44,15 @@ export class Gameboard {
        
         let isPossible = true;
 
-        locations.forEach((location) => {
+        locations.some((location) => {
             let [x,y] = location;
             
             if(this.board[x][y] !== ''){
                 isPossible = false;
-                return;
+                return true;
             }
             this.board[x][y] = this.ships.length-1;
-
+            return false;
         })
         if(!isPossible){
             this.ships.pop();
@@ -116,7 +116,7 @@ export class Gameboard {
 
     recieveAttack (hitLocation) {
         
-        if(this.board[hitLocation[0]][hitLocation[1]] === 'X'){
+        if(this.board[hitLocation[0]][hitLocation[1]] === 'X' || this.board[hitLocation[0]][hitLocation[1]] === 'O'){
             return null;
         }
         let ship = this.isHit(hitLocation);
